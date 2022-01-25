@@ -47,7 +47,7 @@ def make_get_up_message():
     sentence = get_one_sentence()
     now = pendulum.now(TIMEZONE)
     # 3 - 7 means early for me
-    is_get_up_early =now.hour  
+    is_get_up_early = 3 <= now.hour <=12
     get_up_time = now.to_datetime_string()
     body = GET_UP_MESSAGE_TEMPLATE.format(get_up_time=get_up_time, sentence=sentence)
     return body, is_get_up_early
@@ -80,6 +80,19 @@ def main(github_token, repo_name, weather_message, tele_token, tele_chat_id):
                 },
             )
     else:
+        bodylate = body + "\n\n" +"Attention:你今天起的还蛮“早”的，半天就酱紫过去咯" + "\n" 
+        issue.create_comment(bodylate)
+        # send to telegram
+        if tele_token and tele_chat_id:
+            requests.post(
+                url="https://api.telegram.org/bot{0}/{1}".format(
+                    tele_token, "sendMessage"
+                ),
+                data={
+                    "chat_id": tele_chat_id,
+                    "text": bodylate,
+                },
+            )
         print("You wake up late")
 
 
